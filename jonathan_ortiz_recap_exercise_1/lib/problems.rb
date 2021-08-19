@@ -6,7 +6,23 @@
 #
 # all_vowel_pairs(["goat", "action", "tear", "impromptu", "tired", "europe"])   # => ["action europe", "tear impromptu"]
 def all_vowel_pairs(words)
+    results = []
+    words.each_with_index do |word, idx|
+        words[idx...words.length].each do |word2|
+            pair = [word, word2].join(" ")
+            results << pair if has_vowels(pair)
+        end
+    end
+    return results
+end
 
+def has_vowels(pair)
+    vowels = "aeiou"
+    all_vowels = true
+    vowels.each_char do |vowel|
+        all_vowels = false if !pair.include?(vowel)
+    end
+    return all_vowels
 end
 
 
@@ -18,7 +34,11 @@ end
 # composite?(9)     # => true
 # composite?(13)    # => false
 def composite?(num)
-
+    return false if num <= 3
+    (2...num).each do |n|
+        return true if num % n == 0
+    end
+    return false
 end
 
 
@@ -32,7 +52,7 @@ end
 # find_bigrams("the theater is empty", ["cy", "em", "ty", "ea", "oo"])  # => ["em", "ty", "ea"]
 # find_bigrams("to the moon and back", ["ck", "oo", "ha", "at"])        # => ["ck", "oo"]
 def find_bigrams(str, bigrams)
-
+    return bigrams.select {|bigram| str.include?(bigram)}
 end
 
 class Hash
@@ -50,7 +70,12 @@ class Hash
     # hash_2.my_select { |k, v| k + 1 == v }      # => {10=>11, 5=>6, 7=>8})
     # hash_2.my_select                            # => {4=>4}
     def my_select(&prc)
-
+        prc ||= Proc.new {|k, v| k == v}
+        hash = Hash.new
+        self.each_pair do |key, value|
+            hash[key] = value if prc.call(key, value)
+        end
+        return hash
     end
 end
 
@@ -64,7 +89,17 @@ class String
     # "cats".substrings     # => ["c", "ca", "cat", "cats", "a", "at", "ats", "t", "ts", "s"]
     # "cats".substrings(2)  # => ["ca", "at", "ts"]
     def substrings(length = nil)
-
+        results = []
+        substring = ""
+        self.each_char.with_index do |char, idx|
+            self[idx...self.length].each_char do |char2|
+                substring += char2
+                results << substring
+            end
+            substring = ""
+        end
+        results = results.select{|word| word.length == length} if length != nil
+        return results
     end
 
 
@@ -78,6 +113,11 @@ class String
     # "bootcamp".caesar_cipher(2) #=> "dqqvecor"
     # "zebra".caesar_cipher(4)    #=> "difve"
     def caesar_cipher(num)
-
+        alphabet = "abcdefghijklmnopqrstuvwxyz"
+        result = ""
+        self.each_char do |char|
+            result += alphabet[(alphabet.index(char) + num) % alphabet.length]
+        end
+        return result
     end
 end
